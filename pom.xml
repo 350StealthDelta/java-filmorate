@@ -14,11 +14,11 @@
 	<name>filmorate</name>
 	<description>Project for Yandex.Practicum</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>11</java.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.comiler.source>17</maven.comiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<maven.comiler.source>11</maven.comiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.release>11</maven.compiler.release>
 	</properties>
 	<dependencies>
@@ -36,6 +36,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/jakarta.validation/jakarta.validation-api -->
+		<dependency>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
+			<version>3.0.2</version>
 		</dependency>
 	</dependencies>
 
