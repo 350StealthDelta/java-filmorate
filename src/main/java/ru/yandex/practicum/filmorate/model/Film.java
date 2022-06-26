@@ -7,14 +7,13 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 public class Film {
     
-    @Positive(message = "id должен быть больше нуля")
+    //    @Positive(message = "id должен быть больше нуля")
     private int id;
     
     @NotBlank(message = "Необходимо указать имя")
@@ -25,9 +24,10 @@ public class Film {
     private String description;
     
     @NotNull
-    private LocalDateTime releaseDate;
+//    @FutureOrPresent()
+    private LocalDate releaseDate;
     
     @Positive(message = "Длительность должна быть больше нуля")
     @NotNull
-    private Duration duration;
+    private int duration;
 }

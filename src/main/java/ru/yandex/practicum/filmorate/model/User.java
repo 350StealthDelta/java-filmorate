@@ -4,13 +4,13 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 public class User {
     
-    @Positive(message = "id должно быть больше нуля")
+    //    @Positive(message = "id должно быть больше нуля")
     private int id;
     
     @Email(message = "Email должен быть корректным адресом электронной почты")
@@ -27,5 +27,5 @@ public class User {
     
     @NotNull
     @Past(message = "Дата рожденья не может быть в будущем или в настоящем")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 }

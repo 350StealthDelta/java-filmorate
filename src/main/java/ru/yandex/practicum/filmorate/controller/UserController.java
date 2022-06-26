@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,16 +15,22 @@ import java.util.Map;
 @Slf4j
 public class UserController {
     
-    private Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
+    private int idCounter = 1;
     
     @GetMapping("")
-    public Map<Integer, User> getUsers(@RequestBody User user) {
+    public User[] getUsers() {
         log.info("Возвращен список пользователей");
-        return users;
+        return users.values().toArray(new User[0]);
     }
     
-    @PostMapping("/user")
+    @PostMapping("")
     public User createUser(@RequestBody User user) {
+        if (user != null) {
+            user.setId(idCounter++);
+        } else {
+            throw new ValidationException();
+        }
         validateUser(user);
         
         users.put(user.getId(), user);
@@ -31,13 +38,20 @@ public class UserController {
         return user;
     }
     
-    @PutMapping("/user/{id}")
+    @PutMapping("")
     public User updateUser(@RequestBody User user) {
         validateUser(user);
         
         users.replace(user.getId(), user);
-        log.info(String.format("Данные пользователя с id=%s обновлены."));
+        log.info(String.format("Данные пользователя с id=%s обновлены.", user.getId()));
         return user;
+    }
+    
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> clearUserMap() {
+        log.info("Список пользователей очищен.");
+        users.clear();
+        return ResponseEntity.ok().build();
     }
     
     private void validateUser(User user) {
@@ -62,7 +76,7 @@ public class UserController {
             user.setName(user.getLogin());
             log.info("Поле name объекта user заменено на login.");
         }
-        if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDateTime.now())) {
+        if (user.getBirthday() == null || user.getBirthday().isAfter(LocalDate.now())) {
             log.warn("Ошибка валидации поля birthday объекта user.");
             throw new ValidationException();
         }
