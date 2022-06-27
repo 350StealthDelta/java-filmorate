@@ -10,16 +10,14 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
     
-    //    @Positive(message = "id должно быть больше нуля")
     private int id;
     
     @Email(message = "Email должен быть корректным адресом электронной почты")
     @NotNull
     private String email;
     
-    @NotBlank(message = "Логин не может быть пустым")
-    @NotEmpty(message = "Логин не может состоять из пробелов")
-    @NotNull
+    @NotBlank(message = "Логин не может состоять из пробелов")
+    @NotEmpty(message = "Логин не может быть пустым")
     private String login;
     
     @NotNull
