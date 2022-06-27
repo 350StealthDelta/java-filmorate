@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotation.AfterFirstFilm;
+import ru.yandex.practicum.filmorate.annotation.OnCreate;
+import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 
 import java.time.LocalDate;
 
@@ -14,6 +13,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class Film {
     
+    @NotNull(groups = OnCreate.class)
+    @Min(value = 1, groups = OnUpdate.class, message = "id объекта должен быть больше 0")
     private int id;
     
     @NotBlank(message = "Необходимо указать имя")

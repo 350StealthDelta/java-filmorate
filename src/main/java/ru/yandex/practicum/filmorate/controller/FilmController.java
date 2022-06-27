@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.annotation.OnCreate;
+import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -13,12 +16,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 @Slf4j
+@Validated
 public class FilmController {
     
     private final Map<Integer, Film> films = new HashMap<>();
     private int idCounter = 1;
     
     @PostMapping("")
+    @Validated(OnCreate.class)
     public Film addNewFilm(@RequestBody @Valid Film film) {
         nullValidationCheck(film);
         film.setId(idCounter++);
@@ -29,8 +34,9 @@ public class FilmController {
     }
     
     @PutMapping("")
+    @Validated(OnUpdate.class)
     public Film updateFilm(@RequestBody @Valid Film film) {
-        idValidationCheck(film);
+        nullValidationCheck(film);
         
         log.info(String.format("Фильм с id=%s обновлен на %s.", film.getId(), film));
         films.replace(film.getId(), film);
@@ -58,12 +64,4 @@ public class FilmController {
             throw new ValidationException("Переданный объект film равен null");
         }
     }
-    
-    private void idValidationCheck(Film film) {
-        nullValidationCheck(film);
-        if (film.getId() <= 0) {
-            throw new ValidationException("id объекта должен быть больше 0");
-        }
-    }
-    
 }
