@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.annotation.OnCreate;
+import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 @Slf4j
+@Validated
 public class UserController {
     
     private final Map<Integer, User> users = new HashMap<>();
@@ -25,11 +29,8 @@ public class UserController {
     }
     
     @PostMapping("")
+    @Validated(OnCreate.class)
     public User createUser(@RequestBody @Valid User user) {
-/*        if (user != null) {
-        } else {
-            throw new ValidationException();
-        }*/
         nullUserValidationCheck(user);
         user.setId(idCounter++);
         nameCorrection(user);
@@ -40,8 +41,9 @@ public class UserController {
     }
     
     @PutMapping("")
+    @Validated(OnUpdate.class)
     public User updateUser(@RequestBody @Valid User user) {
-        idValidationCheck(user);
+        nullUserValidationCheck(user);
         nameCorrection(user);
         
         users.replace(user.getId(), user);
@@ -62,13 +64,6 @@ public class UserController {
         if (user == null) {
             log.warn("Полученный объект user является null.");
             throw new ValidationException("Полученный объект user является null.");
-        }
-    }
-    
-    private void idValidationCheck(User user) {
-        nullUserValidationCheck(user);
-        if (user.getId() <= 0) {
-            throw new ValidationException("id объекта должен быть больше 0");
         }
     }
     
