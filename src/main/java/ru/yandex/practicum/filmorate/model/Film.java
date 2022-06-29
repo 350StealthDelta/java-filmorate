@@ -1,21 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import ru.yandex.practicum.filmorate.annotation.AfterFirstFilm;
-import ru.yandex.practicum.filmorate.annotation.OnCreate;
 import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 
 import java.time.LocalDate;
 
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class Film {
     
-    @NotNull(groups = OnCreate.class)
     @Min(value = 1, groups = OnUpdate.class, message = "id объекта должен быть больше 0")
-    private int id;
+    private Integer id;
     
     @NotBlank(message = "Необходимо указать имя")
     private String name;
