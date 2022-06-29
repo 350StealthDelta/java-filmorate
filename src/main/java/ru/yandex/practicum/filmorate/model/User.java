@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Setter
