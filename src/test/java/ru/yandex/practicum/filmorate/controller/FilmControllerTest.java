@@ -16,11 +16,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmControllerTest {
     
     private static FilmController controller;
-    Film newFilm;
+    private static Validator validator;
+    private Film newFilm;
     
     @BeforeAll
     static void beforeAll() {
         controller = new FilmController();
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
     
     @BeforeEach
@@ -28,7 +30,7 @@ class FilmControllerTest {
         newFilm = new Film();
         newFilm.setName("nisi eiusmod");
         newFilm.setDescription("adipisicing");
-        newFilm.setReleaseDate(LocalDate.of(1967, 3, 25));
+        newFilm.setReleaseDate(LocalDate.parse("1967-03-25"));
         newFilm.setDuration(100);
     }
     
@@ -38,84 +40,71 @@ class FilmControllerTest {
     }
     
     @Test
-    void filmCreate() {
+    @DisplayName("Проверка работы метода addNewFilm в FilmController")
+    void filmCreateTest() {
         assertDoesNotThrow(() -> controller.addNewFilm(newFilm), "Ошибка добавления корректного фильма");
     }
     
     @Test
-    @DisplayName("Если поле name пустое, то возвращается код 400")
-    void filmValidationNameTest() {
+    @DisplayName("Проверка корректности валидации name в FilmController")
+    void nameValidationTest() {
         newFilm.setName("");
-        
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<Film>> violations = validator.validate(newFilm);
-        
         ConstraintViolation<Film> violation = violations.stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("Отсутствует ошибка валидации"));
+            .orElseThrow(() -> new ValidationException("Отсутствует ошибка валидации"));
         assertEquals("name", violation.getPropertyPath().toString());
         assertEquals("Необходимо указать имя", violation.getMessageTemplate());
     }
     
     @Test
-    @DisplayName("Если description больше 200 символов, то возвращается код 400")
-    void filmValidationDescriptionTest() {
+    @DisplayName("Проверка корректности валидации description в FilmController")
+    void descriptionValidationTest() {
         newFilm.setDescription("Пятеро друзей ( комик-группа «Шарло»), приезжают в город Бризуль. Здесь они хотят " +
             "разыскать господина Огюста Куглова, который задолжал им деньги, а именно 20 миллионов. о Куглов, " +
             "который за время «своего отсутствия», стал кандидатом Коломбани.");
         
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<Film>> violations = validator.validate(newFilm);
-        
         ConstraintViolation<Film> violation = violations.stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("Отсутствует ошибка валидации"));
+            .orElseThrow(() -> new ValidationException("Отсутствует ошибка валидации"));
         assertEquals("description", violation.getPropertyPath().toString());
         assertEquals("Размер описания не должен быть больше 200 символов", violation.getMessageTemplate());
     }
     
     @Test
-    @DisplayName("Если releaseDate раньше 28 декабря 1895 года, то возвращается код 400")
-    void filmValidationReleaseDateTest() {
+    @DisplayName("Проверка корректности валидации releaseDate в FilmController")
+    void releaseDateValidationTest() {
         newFilm.setReleaseDate(LocalDate.of(1890, 3, 25));
-        
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<Film>> violations = validator.validate(newFilm);
-        
         ConstraintViolation<Film> violation = violations.stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("Отсутствует ошибка валидации"));
+            .orElseThrow(() -> new ValidationException("Отсутствует ошибка валидации"));
         assertEquals("releaseDate", violation.getPropertyPath().toString());
         assertEquals("Дата релиза не может быть раньше 28 декабря 1895 года", violation.getMessageTemplate());
     }
     
     @Test
-    @DisplayName("Если duration меньше нуля, то возвращается код 400")
-    void filmValidationDurationTest() {
+    @DisplayName("Проверка корректности валидации duration в FilmController")
+    void durationValidationTest() {
         newFilm.setDuration(-200);
-        
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<Film>> violations = validator.validate(newFilm);
-        
         ConstraintViolation<Film> violation = violations.stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("Отсутствует ошибка валидации"));
+            .orElseThrow(() -> new ValidationException("Отсутствует ошибка валидации"));
         assertEquals("duration", violation.getPropertyPath().toString());
         assertEquals("Длительность должна быть больше нуля", violation.getMessageTemplate());
     }
     
     @Test
-    @DisplayName("")
-    void filmValidationIdTest() {
+    @DisplayName("Проверка корректности валидации id в FilmController")
+    void idValidationTest() {
         newFilm.setId(-5);
-        
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         Set<ConstraintViolation<Film>> violations = validator.validate(newFilm, OnUpdate.class);
-        
         ConstraintViolation<Film> violation = violations.stream().findFirst()
-            .orElseThrow(() -> new RuntimeException("Отсутствует ошибка валидации"));
+            .orElseThrow(() -> new ValidationException("Отсутствует ошибка валидации"));
         assertEquals("id", violation.getPropertyPath().toString());
         assertEquals("id объекта должен быть больше 0", violation.getMessageTemplate());
     }
     
     @Test
-    @DisplayName("Если film = null, то выбрасывается исключение ValidationException")
+    @DisplayName("Проверка корректности обработки случая film=null в FilmController")
     void filmNullValidationTest() {
         newFilm = null;
         
