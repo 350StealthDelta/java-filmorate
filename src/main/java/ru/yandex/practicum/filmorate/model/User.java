@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 
 import java.time.LocalDate;
@@ -16,17 +19,15 @@ public class User {
     private Integer id;
     
     @Email(message = "Email должен быть корректным адресом электронной почты")
-    @NotNull
+    @NotNull(message = "Email не может быть null")
     private String email;
     
-    @NotBlank(message = "Логин не может состоять из пробелов")
-    @NotEmpty(message = "Логин не может быть пустым")
+    @NotBlank(message = "Логин не может состоять из пробелов или быть null")
     private String login;
     
-    @NotNull
     private String name;
     
-    @NotNull
+    @NotNull(message = "Birthday не может быть null")
     @Past(message = "Дата рожденья не может быть в будущем или в настоящем")
     private LocalDate birthday;
 }

@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.yandex.practicum.filmorate.annotation.AfterFirstFilm;
 import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 
@@ -26,6 +29,6 @@ public class Film {
     private LocalDate releaseDate;
     
     @Positive(message = "Длительность должна быть больше нуля")
-    @NotNull
+    @NotNull(message = "Duration не может быть null")
     private int duration;
 }
