@@ -69,7 +69,7 @@ public class UserController {
     
     private void nameCorrection(User user) {
         nullUserValidationCheck(user);
-        if (user.getName().isEmpty() || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }
