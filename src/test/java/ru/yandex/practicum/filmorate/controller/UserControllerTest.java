@@ -110,25 +110,25 @@ class UserControllerTest {
     void nameValidationTest() {
         // проверка нормальной работы
         controller.createUser(newUser);
-        assertEquals("Nick Name", controller.getUsers()[0].getName());
+        assertEquals("Nick Name", controller.getUsers().get(0).getName());
         
         // проверка на name=null
         controller.clearUserMap();
         newUser.setName(null);
         controller.createUser(newUser);
-        assertEquals("dolore", controller.getUsers()[0].getName());
+        assertEquals("dolore", controller.getUsers().get(0).getName());
         
         // проверка на пустое поле name
         controller.clearUserMap();
         newUser.setName("");
         controller.createUser(newUser);
-        assertEquals("dolore", controller.getUsers()[0].getName());
+        assertEquals("dolore", controller.getUsers().get(0).getName());
         
         // проверка на поле name, заполненное пробелами
         controller.clearUserMap();
         newUser.setName("   ");
         controller.createUser(newUser);
-        assertEquals("dolore", controller.getUsers()[0].getName());
+        assertEquals("dolore", controller.getUsers().get(0).getName());
     }
     
     @Test
