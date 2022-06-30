@@ -10,7 +10,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,7 +24,7 @@ public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private int idCounter = 1;
     
-    @PostMapping("")
+    @PostMapping()
     @Validated(OnCreate.class)
     public Film addNewFilm(@RequestBody @Valid Film film) {
         nullValidationCheck(film);
@@ -33,20 +35,20 @@ public class FilmController {
         return film;
     }
     
-    @PutMapping("")
+    @PutMapping()
     @Validated(OnUpdate.class)
     public Film updateFilm(@RequestBody @Valid Film film) {
         nullValidationCheck(film);
         
-        log.info(String.format("Фильм с id=%s обновлен на %s.", film.getId(), film));
         films.replace(film.getId(), film);
+        log.info(String.format("Фильм с id=%s обновлен на %s.", film.getId(), film));
         return film;
     }
     
-    @GetMapping("")
-    public Film[] getFilms() {
+    @GetMapping()
+    public List<Film> getFilms() {
         log.info("Возвращен список фильмов.");
-        return films.values().toArray(new Film[0]);
+        return new ArrayList<>(films.values());
     }
     
     //+++++++++++++

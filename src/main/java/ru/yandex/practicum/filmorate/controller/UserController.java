@@ -10,7 +10,9 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,13 +24,13 @@ public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
     private int idCounter = 1;
     
-    @GetMapping("")
-    public User[] getUsers() {
+    @GetMapping()
+    public List<User> getUsers() {
         log.info("Возвращен список пользователей");
-        return users.values().toArray(new User[0]);
+        return new ArrayList<>(users.values());
     }
     
-    @PostMapping("")
+    @PostMapping()
     @Validated(OnCreate.class)
     public User createUser(@RequestBody @Valid User user) {
         nullUserValidationCheck(user);
@@ -40,12 +42,11 @@ public class UserController {
         return user;
     }
     
-    @PutMapping("")
+    @PutMapping()
     @Validated(OnUpdate.class)
     public User updateUser(@RequestBody @Valid User user) {
-        nullUserValidationCheck(user);
         nameCorrection(user);
-        
+    
         users.replace(user.getId(), user);
         log.info(String.format("Данные пользователя с id=%s обновлены.", user.getId()));
         return user;
