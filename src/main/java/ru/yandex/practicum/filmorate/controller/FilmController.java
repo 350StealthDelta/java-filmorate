@@ -1,6 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -8,30 +13,34 @@ import ru.yandex.practicum.filmorate.annotation.OnCreate;
 import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.websocket.server.PathParam;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
 @Validated
+@NoArgsConstructor
+@Getter
+@Setter
 public class FilmController {
+    private FilmService filmService;
     
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int idCounter = 1;
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
     
     @PostMapping()
     @Validated(OnCreate.class)
-    public Film addNewFilm(@RequestBody @Valid Film film) {
+    public Film createFilm(@RequestBody @Valid Film film) {
         nullValidationCheck(film);
-        film.setId(idCounter++);
         
-        films.put(film.getId(), film);
-        log.info(String.format("%s добавлен в коллекцию фильмов с id=%s.", film, film.getId()));
+        filmService.addFilm(film);
+        log.info(String.format("%s добавлен в коллекцию фильмов с id=%s.", film.getName(), film.getId()));
         return film;
     }
     
@@ -40,24 +49,53 @@ public class FilmController {
     public Film updateFilm(@RequestBody @Valid Film film) {
         nullValidationCheck(film);
         
-        films.replace(film.getId(), film);
+        filmService.updateFilm(film);
         log.info(String.format("Фильм с id=%s обновлен на %s.", film.getId(), film));
         return film;
     }
     
     @GetMapping()
     public List<Film> getFilms() {
+        List<Film> result = filmService.getFilms();
         log.info("Возвращен список фильмов.");
-        return new ArrayList<>(films.values());
+        return result;
+    }
+    
+    @GetMapping("/popular")
+    public List<Film> getPopulat(@PathParam(value = "count") Integer count) {
+        if (count == null) {
+            count = 10;
+        }
+        List<Film> result = filmService.getTopRatedFilms(count);
+        log.info(String.format("Возвращен список из %s самых популярных фильмов.", count));
+        return result;
+    }
+    
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Long id) {
+        Film result = filmService.get(id);
+        log.info(String.format("Возвращен фильм с id=%s", id));
+        return result;
+    }
+    
+    @PutMapping("/{id}/like/{userId}")
+    public ResponseEntity<Void> addLikeToFilm(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.addLikeToFilm(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    
+    @DeleteMapping("/{id}/like/{userId}")
+    public ResponseEntity<Void> removeLikeFromFilm(@PathVariable Long id, @PathVariable Long userId) {
+        filmService.removeLikeFromFilm(id, userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
     
     //+++++++++++++
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearFilmsMap() {
         log.info("Список фильмов очищен.");
-        films.clear();
-        idCounter = 1;
-        return ResponseEntity.ok().build();
+        filmService.filmsClear();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
     
     private void nullValidationCheck(Film film) {

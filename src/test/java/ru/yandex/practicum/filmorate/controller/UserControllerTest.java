@@ -1,8 +1,14 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.util.UserIdGenerator;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -16,13 +22,14 @@ class UserControllerTest {
     
     private static UserController controller;
     private static Validator validator;
-    
+    private static Gson gson;
     private User newUser;
     
     @BeforeAll
     static void beforeAll() {
-        controller = new UserController();
+        controller = new UserController(new UserService(new InMemoryUserStorage(), new UserIdGenerator()));
         validator = Validation.buildDefaultValidatorFactory().getValidator();
+        gson = new GsonBuilder().create();
     }
     
     @BeforeEach
@@ -35,12 +42,14 @@ class UserControllerTest {
     }
     
     @AfterEach
+    @SneakyThrows
     void tearDown() {
         controller.clearUserMap();
     }
     
     @Test
     @DisplayName("Проверка работы метода createUser в UserController")
+    @SneakyThrows
     void createUserTest() {
         assertDoesNotThrow(() -> controller.createUser(newUser));
     }
