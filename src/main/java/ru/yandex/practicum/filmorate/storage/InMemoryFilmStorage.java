@@ -14,7 +14,7 @@ import java.util.Map;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
     
     private final Map<Long, Film> films = new HashMap<>();
     
@@ -61,14 +61,5 @@ public class InMemoryFilmStorage implements FilmStorage{
     @Override
     public void filmsClear() {
         films.clear();
-    }
-    
-    @Override
-    public boolean isFilmExist(Long id) {
-        if (films.containsKey(id)) {
-            return true;
-        } else {
-            throw new FilmNotFoundException(String.format("Фильм с id=%s не найден.", id));
-        }
     }
 }

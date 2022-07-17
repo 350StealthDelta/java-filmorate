@@ -18,6 +18,4 @@ public interface FilmStorage {
     
     //++++++++++++++++
     void filmsClear();
-    
-    boolean isFilmExist(Long id);
 }

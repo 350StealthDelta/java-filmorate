@@ -16,7 +16,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -62,10 +61,7 @@ public class FilmController {
     }
     
     @GetMapping("/popular")
-    public List<Film> getPopulat(@PathParam(value = "count") Integer count) {
-        if (count == null) {
-            count = 10;
-        }
+    public List<Film> getPopulat(@RequestParam(value = "count", defaultValue = "10") Integer count) {
         List<Film> result = filmService.getTopRatedFilms(count);
         log.info(String.format("Возвращен список из %s самых популярных фильмов.", count));
         return result;

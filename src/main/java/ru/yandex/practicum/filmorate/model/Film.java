@@ -64,12 +64,25 @@ public class Film {
                 String description,
                 LocalDate releaseDate,
                 int duration,
-                @Autowired(required = false) int rate) {
+                int rate) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.rate = rate;
+    }
+    
+    public Film(Long id,
+                String name,
+                String description,
+                LocalDate releaseDate,
+                int duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.rate = 0;
     }
 }

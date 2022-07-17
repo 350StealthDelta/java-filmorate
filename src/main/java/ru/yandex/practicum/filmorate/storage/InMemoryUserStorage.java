@@ -17,11 +17,8 @@ public class InMemoryUserStorage implements UserStorage {
     
     @Override
     public void save(User user) {
-/*        if (user.getFriendsId() == null) {
-            user.setFriendsId(new HashSet<>());
-        }*/
         users.put(user.getId(), user);
-        log.info(String.format("Добавлен пользователь с id=%s.", user.getId()));
+        log.debug(String.format("Добавлен пользователь с id=%s.", user.getId()));
     }
     
     @Override
@@ -30,7 +27,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new UserNotFoundException(String.format("Пользователь с id=%s не найден.", id));
         }
         users.remove(id);
-        log.info(String.format("Пользователь с id=%s удален.", id));
+        log.debug(String.format("Пользователь с id=%s удален.", id));
     }
     
     @Override
@@ -39,7 +36,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new UserNotFoundException(String.format("Пользователь с id=%s не найден.", user.getId()));
         }
         users.replace(user.getId(), user);
-        log.info(String.format("Данные пользователя с id=%s обновлены.", user.getId()));
+        log.debug(String.format("Данные пользователя с id=%s обновлены.", user.getId()));
     }
     
     @Override
@@ -48,7 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new UserNotFoundException(String.format("Пользователь с id=%s не найден.", id));
         }
         User result = users.get(id);
-        log.info(String.format("Найдет и возвращен пользователь с id=%s.", id));
+        log.debug(String.format("Найдет и возвращен пользователь с id=%s.", id));
         return result;
     }
     
@@ -61,7 +58,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void usersClear() {
         users.clear();
-        log.info("Список пользователей очищен.");
+        log.debug("Список пользователей очищен.");
     }
     
     @Override
