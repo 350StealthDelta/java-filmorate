@@ -1,23 +1,28 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.annotation.AfterFirstFilm;
-import ru.yandex.practicum.filmorate.annotation.OnUpdate;
+import ru.yandex.practicum.filmorate.exception.RatedUserNotFound;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 public class Film {
     
-    @Min(value = 1, groups = OnUpdate.class, message = "id объекта должен быть больше 0")
-    private Integer id;
+    private Long id;
     
     @NotBlank(message = "Необходимо указать имя")
     private String name;
@@ -31,4 +36,53 @@ public class Film {
     @Positive(message = "Длительность должна быть больше нуля")
     @NotNull(message = "Duration не может быть null")
     private int duration;
+    
+    private int rate;
+    
+    private Set<Long> ratedUserIds = new HashSet<>();
+    
+    public void addRate(User user) {
+        if (!ratedUserIds.contains(user.getId())) {
+            rate++;
+            ratedUserIds.add(user.getId());
+        }
+    }
+    
+    public void removeRate(User user) {
+        if (ratedUserIds.contains(user.getId())) {
+            rate--;
+            ratedUserIds.remove(user.getId());
+        } else {
+            throw new RatedUserNotFound(String.format("Пользователь с id=%s не найден в списке ставивших лайк фильму с id=%s",
+                user.getId(),
+                id));
+        }
+    }
+    
+    public Film(Long id,
+                String name,
+                String description,
+                LocalDate releaseDate,
+                int duration,
+                int rate) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.rate = rate;
+    }
+    
+    public Film(Long id,
+                String name,
+                String description,
+                LocalDate releaseDate,
+                int duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.rate = 0;
+    }
 }

@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -8,37 +11,39 @@ import ru.yandex.practicum.filmorate.annotation.OnCreate;
 import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
 @Validated
+@NoArgsConstructor
 public class UserController {
     
-    private final Map<Integer, User> users = new HashMap<>();
-    private int idCounter = 1;
+    private UserService userService;
+    
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
     
     @GetMapping()
     public List<User> getUsers() {
         log.info("Возвращен список пользователей");
-        return new ArrayList<>(users.values());
+        return userService.getUsers();
     }
     
     @PostMapping()
     @Validated(OnCreate.class)
     public User createUser(@RequestBody @Valid User user) {
         nullUserValidationCheck(user);
-        user.setId(idCounter++);
         nameCorrection(user);
         
-        users.put(user.getId(), user);
-        log.info(String.format("Добавлен пользователь %s с id=%s.", user, user.getId()));
+        userService.createUser(user);
+        log.info(String.format("Добавлен пользователь %s с id=%s.", user.getName(), user.getId()));
         return user;
     }
     
@@ -46,19 +51,48 @@ public class UserController {
     @Validated(OnUpdate.class)
     public User updateUser(@RequestBody @Valid User user) {
         nameCorrection(user);
-    
-        users.replace(user.getId(), user);
+        
+        userService.updateUser(user);
         log.info(String.format("Данные пользователя с id=%s обновлены.", user.getId()));
         return user;
+    }
+    
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Long id) {
+        return userService.getUser(id);
+    }
+    
+    // Возвращает общих друзей двух пользователей
+    @GetMapping("/{id}/friends/common/{otherid}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherid) {
+        return userService.getCommonFriends(id, otherid);
+    }
+    
+    // Добавляет пользователя friendId в друзья к id и наоборот
+    @PutMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<Void> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.friending(id, friendId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public ResponseEntity<Void> deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.unfriending(id, friendId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    
+    // Возвращает список друзей пользователя
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable Long id) {
+        return userService.getFriends(id);
     }
     
     //+++++++++++++++
     @DeleteMapping("/clear")
     public ResponseEntity<Void> clearUserMap() {
         log.info("Список пользователей очищен.");
-        users.clear();
-        idCounter = 1;
-        return ResponseEntity.ok().build();
+        userService.usersClear();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
     
     private void nullUserValidationCheck(User user) {

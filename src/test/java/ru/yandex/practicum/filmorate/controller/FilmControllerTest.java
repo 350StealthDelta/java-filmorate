@@ -1,9 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.*;
-import ru.yandex.practicum.filmorate.annotation.OnUpdate;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.util.FilmIdGenerator;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -21,7 +24,7 @@ class FilmControllerTest {
     
     @BeforeAll
     static void beforeAll() {
-        controller = new FilmController();
+        controller = new FilmController(new FilmService(new InMemoryFilmStorage(), new InMemoryUserStorage(), new FilmIdGenerator()));
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
     
@@ -42,7 +45,7 @@ class FilmControllerTest {
     @Test
     @DisplayName("Проверка работы метода addNewFilm в FilmController")
     void filmCreateTest() {
-        assertDoesNotThrow(() -> controller.addNewFilm(newFilm), "Ошибка добавления корректного фильма");
+        assertDoesNotThrow(() -> controller.createFilm(newFilm), "Ошибка добавления корректного фильма");
     }
     
     @Test
@@ -93,22 +96,11 @@ class FilmControllerTest {
     }
     
     @Test
-    @DisplayName("Проверка корректности валидации id в FilmController")
-    void idValidationTest() {
-        newFilm.setId(-5);
-        Set<ConstraintViolation<Film>> violations = validator.validate(newFilm, OnUpdate.class);
-        ConstraintViolation<Film> violation = violations.stream().findFirst()
-            .orElseThrow(() -> new ValidationException("Отсутствует ошибка валидации"));
-        assertEquals("id", violation.getPropertyPath().toString());
-        assertEquals("id объекта должен быть больше 0", violation.getMessageTemplate());
-    }
-    
-    @Test
     @DisplayName("Проверка корректности обработки случая film=null в FilmController")
     void filmNullValidationTest() {
         newFilm = null;
         
-        assertThrows(ValidationException.class, () -> controller.addNewFilm(newFilm)
+        assertThrows(ValidationException.class, () -> controller.createFilm(newFilm)
             , "Ошибка проверки film на null");
     }
 }
