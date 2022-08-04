@@ -1,10 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -22,16 +19,9 @@ import java.util.List;
 @RequestMapping("/films")
 @Slf4j
 @Validated
-@NoArgsConstructor
-@Getter
-@Setter
+@RequiredArgsConstructor
 public class FilmController {
-    private FilmService filmService;
-    
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
+    private final FilmService filmService;
     
     @PostMapping()
     @Validated(OnCreate.class)
@@ -69,7 +59,7 @@ public class FilmController {
     
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable Long id) {
-        Film result = filmService.get(id);
+        Film result = filmService.getFilm(id);
         log.info(String.format("Возвращен фильм с id=%s", id));
         return result;
     }

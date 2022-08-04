@@ -1,24 +1,29 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.dao.inMemoryImpl;
 
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
-@NoArgsConstructor
-public class InMemoryUserStorage implements UserStorage {
+@RequiredArgsConstructor
+public class InMemoryUserDao implements UserDao {
     
     private final Map<Long, User> users = new HashMap<>();
     
     @Override
-    public void save(User user) {
+    public Long save(User user) {
         users.put(user.getId(), user);
         log.debug(String.format("Добавлен пользователь с id=%s.", user.getId()));
+        return 0L;
     }
     
     @Override

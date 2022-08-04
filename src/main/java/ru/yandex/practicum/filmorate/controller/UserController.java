@@ -63,9 +63,9 @@ public class UserController {
     }
     
     // Возвращает общих друзей двух пользователей
-    @GetMapping("/{id}/friends/common/{otherid}")
-    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherid) {
-        return userService.getCommonFriends(id, otherid);
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
     
     // Добавляет пользователя friendId в друзья к id и наоборот
@@ -104,7 +104,7 @@ public class UserController {
     
     private void nameCorrection(User user) {
         nullUserValidationCheck(user);
-        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+        if (user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
     }

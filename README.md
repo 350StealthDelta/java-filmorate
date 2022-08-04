@@ -1,4 +1,10 @@
 # java-filmorate
-Template repository for Filmorate project.
+## Pet-project for learning Spring Boot.
 
-Default server port 8085
+Now based on DataBase.
+
+*Schema of DB in the pic.*
+![Schema of DB](DBSchema.png)
+
+
+Default server port 8080
