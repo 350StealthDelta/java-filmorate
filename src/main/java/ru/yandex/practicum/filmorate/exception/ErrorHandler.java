@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.exception;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,7 +45,21 @@ public class ErrorHandler {
     
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse ratedUserNotFound(RatedUserNotFound e) {
+    public ErrorResponse ratedUserNotFoundException(RatedUserNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Ошибка", e.getMessage());
+    }
+    
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse mpaNotFoundException(MpaNotFoundException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse("Ошибка", e.getMessage());
+    }
+    
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse genreNotFoundException(GenreNotFoundException e) {
         log.warn(e.getMessage());
         return new ErrorResponse("Ошибка", e.getMessage());
     }

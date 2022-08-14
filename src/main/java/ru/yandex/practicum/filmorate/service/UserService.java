@@ -1,31 +1,22 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FriendshipDao;
+import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.util.UserIdGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
     
-    private UserStorage userStorage;
-    private UserIdGenerator idGenerator;
-    
-    @Autowired
-    public UserService(UserStorage userStorage, UserIdGenerator idGenerator) {
-        this.userStorage = userStorage;
-        this.idGenerator = idGenerator;
-    }
+    private final UserDao userDao;
+    private final FriendshipDao friendshipDao;
     
     /**
      * Возвращает пользователя по его id
@@ -34,7 +25,7 @@ public class UserService {
      * @return - пользователь
      */
     public User getUser(Long id) {
-        return userStorage.get(id);
+        return userDao.get(id);
     }
     
     /**
@@ -43,8 +34,7 @@ public class UserService {
      * @param user - пользователь
      */
     public void createUser(User user) {
-        user.setId(idGenerator.getId());
-        userStorage.save(user);
+        user.setId(userDao.save(user));
     }
     
     /**
@@ -53,7 +43,7 @@ public class UserService {
      * @param user - пользователь, которого нужно обновить
      */
     public void updateUser(User user) {
-        userStorage.update(user);
+        userDao.update(user);
     }
     
     /**
@@ -62,7 +52,7 @@ public class UserService {
      * @param id - id пользователя в хранилище
      */
     public void deleteUser(Long id) {
-        userStorage.delete(id);
+        userDao.delete(id);
     }
     
     /**
@@ -71,7 +61,7 @@ public class UserService {
      * @return - список пользователей
      */
     public List<User> getUsers() {
-        return userStorage.getUsers();
+        return userDao.getUsers();
     }
     
     /**
@@ -81,10 +71,10 @@ public class UserService {
      * @param friendId - id второго пользователя
      */
     public void friending(Long userId, Long friendId) {
-        if (userStorage.isUserExist(userId) && userStorage.isUserExist(friendId)) {
-            userStorage.get(userId).setFriendId(friendId);
-            userStorage.get(friendId).setFriendId(userId);
-        }
+        checkUserExist(userId);
+        checkUserExist(friendId);
+        
+        friendshipDao.friending(userId, friendId);
     }
     
     /**
@@ -94,9 +84,11 @@ public class UserService {
      * @param friendId - id второго пользователя
      */
     public void unfriending(Long userId, Long friendId) {
-        if (userStorage.isUserExist(userId) && userStorage.isUserExist(friendId)) {
-            userStorage.get(userId).removeFriendIs(friendId);
-            userStorage.get(friendId).removeFriendIs(userId);
+        if (userDao.isUserExist(userId) && userDao.isUserExist(friendId)) {
+            friendshipDao.unfriending(userId, friendId);
+        } else {
+            throw new UserNotFoundException(String.format("Пользователей с id=%s и/или c id=%s не найдено.",
+                userId, friendId));
         }
     }
     
@@ -107,11 +99,9 @@ public class UserService {
      * @return - список друзей пользователя
      */
     public List<User> getFriends(Long userId) {
-        return userStorage
-            .getUsers()
-            .stream()
-            .filter(u -> userStorage.get(userId).getFriendsId().contains(u.getId()))
-            .collect(Collectors.toList());
+        checkUserExist(userId);
+        
+        return friendshipDao.getFriends(userId);
     }
     
     /**
@@ -122,29 +112,24 @@ public class UserService {
      * @return - список общих друзей пользователей
      */
     public List<User> getCommonFriends(Long firstId, Long secondId) {
-        Set<Long> firstUserFriends = userStorage.get(firstId).getFriendsId();
-        Set<Long> secondUserFriends = userStorage.get(secondId).getFriendsId();
-        if (firstUserFriends == null || secondUserFriends == null) {
-            return new ArrayList<>();
-        }
+        checkUserExist(firstId);
+        checkUserExist(secondId);
         
-        Set<Long> commons = firstUserFriends.stream()
-            .filter(secondUserFriends::contains)
-            .collect(Collectors.toSet());
-        
-        return userStorage.getUsers()
-            .stream()
-            .filter(user -> commons.contains(user.getId()))
-            .collect(Collectors.toList());
+        return friendshipDao.getCommonFriends(firstId, secondId);
     }
     
     //++++++++++++++++++
+    
+    private void checkUserExist(Long id) {
+        if (!userDao.isUserExist(id)) {
+            throw new UserNotFoundException(String.format("Пользователь с id=%s не найден.", id));
+        }
+    }
     
     /**
      * Очищает хранилище пользователей и сбрасывает счетчик id
      */
     public void usersClear() {
-        userStorage.usersClear();
-        idGenerator.idReset();
+        userDao.usersClear();
     }
 }
